@@ -1,19 +1,9 @@
 <?php
     class APIService {
         public $db;
-        public $insertDataArr = [
-            ['email'=>'c', 'firstname'=>'c', 'lastname'=>'c'], 
-            ['email'=>'d', 'firstname'=>'d', 'lastname'=>'d']
-        ];
-        public $updateDataArr = [
-            ['id'=>8, 'email'=>'1', 'firstname'=>'1', 'lastname'=>'1'], 
-            ['id'=>9, 'email'=>'2', 'firstname'=>'2', 'lastname'=>'2']
-        ];
-        public $deleteDataArr = [8, 9];
 
         public function __construct() {
             $this->connectDB();
-            $this->deleteData();
         }
 
         //--Connect Database
@@ -120,8 +110,77 @@
             }
         }
 
+        //--Insert Data in primary and secondary table
+        public function insertDataMultiTable($primaryTableName = '', $primaryDataArr = []) {
+            if((!empty($primaryTableName)) && (count($primaryDataArr) != 0)) {
+                foreach($primaryDataArr as $primaryData) {
+                    $status = false;
+                    $primaryColumns = "";
+                    $primaryValues = "";
+                    $primaryIndex = 1;
+                    $secondaryTableArr = [];
+
+                    foreach($primaryData as $key=>$val) {
+                        switch($key) {
+                            case 'secondaryTableArr': 
+                                array_push($secondaryTableArr, $val);
+                                break;
+                            default:
+                                if($primaryIndex > 1) {
+                                    $primaryColumns .= ", ";
+                                    $primaryValues .= ", ";
+                                }
+
+                                $primaryColumns .= "$key";
+                                $primaryValues .= "'$val'";
+                                $primaryIndex++;
+                                break;
+                        }
+                    }
+
+                    $sqlCmd = "INSERT INTO $primaryTableName($primaryColumns) VALUES($primaryValues)";
+                    $status = $this->db->query($sqlCmd);
+                    $primaryLastInsertID = $this->db->insert_id;
+
+                    if($status && (count($secondaryTableArr) != 0)) {
+                        foreach($secondaryTableArr as $secondaryTable){
+                            $secondaryTableName = $secondaryTable['tableName'];
+                            $secondaryForeignKey = $secondaryTable['foreignKey'];
+                            $secondaryDataArr = $secondaryTable['dataArr'];
+
+                            foreach($secondaryDataArr as $secondaryData) {
+                                $secondaryColumns = "";
+                                $secondaryValues = "";
+                                $secondaryIndex = 1;
+
+                                foreach($secondaryData as $key=>$val) {
+                                    if($secondaryIndex > 1) {
+                                        $secondaryColumns .= ", ";
+                                        $secondaryValues .= ", ";
+                                    }
+
+                                    $secondaryColumns .= "$key";
+                                    $secondaryValues .= "'$val'";
+                                    $secondaryIndex++;
+                                }
+
+                                $sqlCmd = "INSERT INTO $secondaryTableName($secondaryColumns, $secondaryForeignKey) VALUES($secondaryValues, $primaryLastInsertID)";
+                                echo $sqlCmd.'<br>';
+                                $status = $this->db->query($sqlCmd);
+                            }
+                        }
+                    }
+                }
+
+                if($status) 
+                    return true;
+
+                return false;
+            }
+        }
+
         //--Update Data in table
-        public function updateData($tableName = '', $dataArr = [], $columnFilter = ''){
+        public function updateData($tableName = '', $dataArr = [], $columnFilter = '', $columnUpdateDTFilter = ''){
             if((!empty($tableName)) && (count($dataArr) != 0) && (!empty($columnFilter))) {
                 foreach($dataArr as $data) {
                     $status = false;
@@ -130,17 +189,22 @@
                     $index = 1;
 
                     foreach($data as $key=>$val) {
-                        if($key == $columnFilter) {
-                            $condition .= "$key = '$val'";
-                            continue;
+                        switch($key) {
+                            case $columnFilter:
+                                $condition .= "$columnFilter = '$val'";
+                                break;
+                            default:
+                                if($index > 1)
+                                    $updates .= ", ";
+                                
+                                $updates .= "$key = '$val'";
+                                $index++;
+                                break;
                         }
-
-                        if($index > 1)
-                            $updates .= ", ";
-                        
-                        $updates .= "$key = '$val'";
-                        $index++;
                     }
+
+                    if(!empty($columnUpdateDTFilter))
+                        $updates .= ", $columnUpdateDTFilter = NOW()";
 
                     $sqlCmd = "UPDATE $tableName SET $updates WHERE $condition";
                     $status = $this->db->query($sqlCmd);
@@ -153,23 +217,148 @@
             }
         }
 
-        //--Delete Data in table 
-        public function deleteData($tableName = '', $dataArr = [], $columnFilter = '') {
-            if((!empty($tableName)) && (count($dataArr) != 0) && (!empty($columnFilter))) {
-                $status = false;
-                $condition = "";
+        //--Update Data in primary and secondary table
+        public function updateDataMultiTable($primaryTableName = '', $primaryDataArr = [], $primaryColumnFilter = '', $primaryColumnUpdateDTFilter = '') {
+            if((!empty($primaryTableName)) && (count($primaryDataArr) != 0) && (!empty($primaryColumnFilter))) {
+                foreach($primaryDataArr as $primaryData) {
+                    $status = false;
+                    $primaryUpdates = "";
+                    $primaryCondition = "";
+                    $primaryIndex = 1;
+                    $secondaryTableArr = [];
 
-                foreach($dataArr as $data) {
-                    $condition = "$columnFilter = '$data'";
+                    foreach($primaryData as $key=>$val) {
+                        switch($key) {
+                            case 'secondaryTableArr': 
+                                array_push($secondaryTableArr, $val);
+                                break;
+                            case $primaryColumnFilter:
+                                $primaryCondition .= "$primaryColumnFilter = '$val'";
+                                break;
+                            default:
+                                if($primaryIndex > 1)
+                                    $primaryUpdates .= ", ";
 
-                    $sqlCmd = "DELETE FROM $tableName WHERE $condition";
+                                $primaryUpdates .= "$key = '$val'";
+                                $primaryIndex++;
+                                break;
+                        }
+                    }
+
+                    if(!empty($primaryColumnUpdateDTFilter))
+                        $primaryUpdates .= ", $primaryColumnUpdateDTFilter = NOW()";
+
+                    $sqlCmd = "UPDATE $primaryTableName SET $primaryUpdates WHERE $primaryCondition";
                     $status = $this->db->query($sqlCmd);
+
+                    if($status && (count($secondaryTableArr) != 0)) {
+                        foreach($secondaryTableArr as $secondaryTable) {
+                            $secondaryTableName = $secondaryTable['tableName'];
+                            $secondaryColumnFilter = $secondaryTable['columnFilter'];
+                            $secondaryColumnUpdateDTFilter = isset($secondaryTable['columnUpdateDTFilter']) ? $secondaryTable['columnUpdateDTFilter'] : '';
+                            $secondaryDataArr = $secondaryTable['dataArr'];
+
+                            foreach($secondaryDataArr as $secondaryData) {
+                                $secondaryUpdates = "";
+                                $secondaryCondition = "";
+                                $secondaryIndex = 1;
+
+                                foreach($secondaryData as $key=>$val) {
+                                    switch($key) {
+                                        case $secondaryColumnFilter:
+                                            $secondaryCondition .= "$secondaryColumnFilter = '$val'";
+                                            break;
+                                        default:
+                                            if($secondaryIndex > 1) 
+                                                $secondaryUpdates .= ", ";
+
+                                            $secondaryUpdates .= "$key = '$val'";
+                                            $secondaryIndex++;
+                                            break;
+                                    }
+                                }
+
+                                if(!empty($secondaryColumnUpdateDTFilter))
+                                    $secondaryUpdates .= ", $secondaryColumnUpdateDTFilter = NOW()";
+
+                                $sqlCmd = "UPDATE $secondaryTableName SET $secondaryUpdates WHERE $secondaryCondition";
+                                echo $sqlCmd.'<br>';
+                                $status = $this->db->query($sqlCmd);
+                            }
+                        }
+                    }
                 }
+
+                if($status) 
+                    return true;
+                
+                return false;
+            }
+        }
+
+        //--Delete Data in table 
+        public function deleteData($tableName = '', $columnFilter = '', $valueFilter = '') {
+            if((!empty($tableName)) && (!empty($columnFilter)) && (!empty($valueFilter))) {
+                $status = false;
+                $condition = "$columnFilter = '$valueFilter'";
+
+                $sqlCmd = "DELETE FROM $tableName WHERE $condition";
+                $status = $this->db->query($sqlCmd);
 
                 if($status) 
                     return true;
 
                 return false;
+            }
+        }
+
+        //--Delete Data in primary and secondary table
+        public function deleteDataMultiTable($primaryTableName = '', $columnFilter = '', $valueFilter = '', $secondaryTableNameArr = []) {
+            if((!empty($primaryTableName)) && (!empty($columnFilter)) && (!empty($valueFilter))) {
+                if((count($secondaryTableNameArr) != 0)) {
+                    foreach($secondaryTableNameArr as $secondaryTableName) {
+                        $status = false;
+
+                        $sqlCmd = "DELETE FROM $secondaryTableName WHERE $columnFilter = $valueFilter";
+                        $status = $this->db->query($sqlCmd);
+                    }
+                }
+
+                if($status) {
+                    $sqlCmd = "DELETE FROM $primaryTableName WHERE $columnFilter = $valueFilter";
+                    $status = $this->db->query($sqlCmd);
+                }
+
+                if($status)
+                    return true;
+
+                return false;
+            }
+        }
+
+        //--Query for multi statement
+        public function getQueryMultiStatement($sqlCmd = ''){
+            if((!empty($sqlCmd))) {
+                $statementOrder = 1;
+
+                if($this->db->multi_query($sqlCmd)) { 
+                    do {
+                        if($result = $this->db->store_result()) {
+                            $statementOrder++;
+                            $result->free_result();
+                        }
+                    } while($this->db->more_results() && $this->db->next_result());
+
+                    if($this->db->errno) {
+                        echo '<b>Parse error: </b>Multi query failed is statement ('.$statementOrder.') because of '.$this->db->error;
+                        return false;
+                    }
+                } else {
+                    echo '<b>Parse error: </b>Multi query failed is statement ('.$statementOrder.') because of '.$this->db->error;
+                    return false;
+                }
+
+                return true;
             }
         }
     }
