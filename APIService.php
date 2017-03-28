@@ -165,7 +165,6 @@
                                 }
 
                                 $sqlCmd = "INSERT INTO $secondaryTableName($secondaryColumns, $secondaryForeignKey) VALUES($secondaryValues, $primaryLastInsertID)";
-                                echo $sqlCmd.'<br>';
                                 $status = $this->db->query($sqlCmd);
                             }
                         }
@@ -282,7 +281,6 @@
                                     $secondaryUpdates .= ", $secondaryColumnUpdateDTFilter = NOW()";
 
                                 $sqlCmd = "UPDATE $secondaryTableName SET $secondaryUpdates WHERE $secondaryCondition";
-                                echo $sqlCmd.'<br>';
                                 $status = $this->db->query($sqlCmd);
                             }
                         }
@@ -360,6 +358,44 @@
 
                 return true;
             }
+        }
+
+        //--Login
+        public function login($dataArr = []) {
+            if((count($dataArr) != 0)) {
+                $sqlCmd = "SELECT * FROM users WHERE email = ? AND password = ?";
+                $query = $this->db->prepare($sqlCmd);
+                $query->bind_param('ss', $dataArr['email'], $dataArr['password']);
+                $query->execute();
+                $userData = $query->get_result()->fetch_assoc();
+
+                if((count($userData) != 0)) {
+                    if((!isset($_SESSION)))
+                        session_start();
+                        
+                    $_SESSION = [
+                        'user_id'=>$userData['user_id'],
+                        'email'=>$userData['email'],
+                        'firstname'=>$userData['firstname'],
+                        'lastname'=>$userData['lastname']
+                    ];
+
+                    return json_encode($_SESSION, JSON_UNESCAPED_UNICODE);
+                }
+
+                return false;
+            }
+        }
+
+        //--Logout
+        public function logout() {
+            if((!isset($_SESSION)))
+                session_start();
+
+            $_SESSION = [];
+            session_destroy();
+
+            return true;
         }
     }
 

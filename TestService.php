@@ -108,6 +108,9 @@
             //$this->updateDataMultiTable('users', $this->updateDataMultiTableArr, 'user_id');
             //$this->deleteDataMultiTable('users', 'user_id', 2, ['menus', 'orders']);
             //$this->getQueryMultiStatement($this->getQueryMultiStatementSqlCmd);
+            //$this->checkLogin(['email'=>'a', 'password'=>"1' OR '1=1"]);
+            //$this->login(['email'=>'a', 'password'=>'1234']);
+            //$this->logout();
         }
     }
 
