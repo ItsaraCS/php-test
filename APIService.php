@@ -6,7 +6,9 @@
             $this->connectDB();
         }
 
-        //--Connect Database
+        /*
+            - Description: 'เชื่อมต่อ Database'
+        */
         public function connectDB() {
             $configDB = [
                 'host'=>'127.0.0.1',
@@ -26,7 +28,11 @@
             }
         }
 
-        //--Get Column name from table
+        /*
+            - Description: 'ฟังก์ชันจะรีเทิร์นอาเรย์ของชื่อ Column จาก Table ที่ต้องการ'
+            - Parameter: 
+                $tableName = 'ชื่อ Table'
+        */
         public function getColumnNameFromTable($tableName = '') {
             $columnNameArr = [];
 
@@ -44,7 +50,11 @@
             return false;
         }
 
-        //--Get all data from table
+        /*
+            - Description: 'ฟังก์ชันจะรีเทิร์นอาเรย์ของข้อมูลจาก Table ที่ต้องการ'
+            - Parameter: 
+                $tableName = 'ชื่อ Table'
+        */
         public function getDataArray($tableName = '') {
             $dataArr = [];
 
@@ -62,7 +72,13 @@
             return false;
         }
 
-        //--Get data from table by filter
+        /*
+            - Description: 'ฟังก์ชันจะรีเทิร์นข้อมูลจาก Table ตามเงื่อนไขที่ต้องการ'
+            - Parameter: 
+                $tableName = 'ชื่อ Table'
+                $columnFilter = 'ชื่อ Column ที่ใช้เป็นเงื่อนไขในการค้นหา'
+                $valueFilter = 'ค่าที่ใช้เป็นเงื่อนไขในการค้นหา'
+        */
         public function getDataObject($tableName = '', $columnFilter = '', $valueFilter = '') {
             $dataObj = [];
 
@@ -79,7 +95,12 @@
             return false;
         }
 
-        //--Insert Data in table
+        /*
+            - Description: 'บันทึกข้อมูลเข้า Table'
+            - Parameter: 
+                $tableName = 'ชื่อ Table'
+                $dataArr[] = 'อาเรย์ของข้อมูลที่ต้องการบันทึก'
+        */
         public function insertData($tableName = '', $dataArr = []) {
             if((!empty($tableName)) && (count($dataArr) != 0)) {
                 foreach($dataArr as $data) {
@@ -110,7 +131,16 @@
             }
         }
 
-        //--Insert Data in primary and secondary table
+        /*
+            - Description: 'บันทึกข้อมูลเข้า Table หลัก และ Table ที่สัมพันธ์กับ Table หลัก'
+            - Parameter: 
+                $primaryTableName = 'ชื่อ Table หลัก'
+                $primaryDataArr[] = 'อาเรย์ของข้อมูลที่ต้องการบันทึกเข้า Table หลัก'
+                $primaryDataArr['secondaryTableArr'] = 'อาเรย์ของข้อมูลที่ต้องการบันทึกใน Table ที่สัมพันธ์กับ Table หลัก [OPTION]'
+                $primaryDataArr['secondaryTableArr']['tableName'] = 'ชื่อ Table ที่สัมพันธ์กับ Table หลัก'
+                $primaryDataArr['secondaryTableArr']['foreignKey'] = 'ชื่อ Foreign Key'
+                $primaryDataArr['secondaryTableArr']['dataArr'] = 'อาเรย์ของข้อมูลที่ต้องการบันทึกเข้า Table ที่สัมพันธ์กับ Table หลัก'
+        */
         public function insertDataMultiTable($primaryTableName = '', $primaryDataArr = []) {
             if((!empty($primaryTableName)) && (count($primaryDataArr) != 0)) {
                 foreach($primaryDataArr as $primaryData) {
@@ -178,7 +208,14 @@
             }
         }
 
-        //--Update Data in table
+        /*
+            - Description: 'แก้ไขข้อมูลใน Table'
+            - Parameter: 
+                $tableName = 'ชื่อ Table'
+                $dataArr[] = 'อาเรย์ของข้อมูลที่ต้องการแก้ไข'
+                $columnFilter = 'ชื่อ Column ที่ใช้เป็นเงื่อนไขในการแก้ไข'
+                $columnUpdateDTFilter = 'ชื่อ Column ของวัน-เวลา ที่ต้องการแก้ไข [OPTION]'
+        */
         public function updateData($tableName = '', $dataArr = [], $columnFilter = '', $columnUpdateDTFilter = ''){
             if((!empty($tableName)) && (count($dataArr) != 0) && (!empty($columnFilter))) {
                 foreach($dataArr as $data) {
@@ -216,7 +253,18 @@
             }
         }
 
-        //--Update Data in primary and secondary table
+        /*
+            - Description: 'แก้ไขข้อมูลใน Table หลัก และ Table ที่สัมพันธ์กับ Table หลัก'
+            - Parameter: 
+                $primaryTableName = 'ชื่อ Table หลัก'
+                $primaryDataArr[] = 'อาเรย์ของข้อมูลที่ต้องการแก้ไขใน Table หลัก'
+                $primaryColumnFilter = 'ชื่อ Column ที่ใช้เป็นเงื่อนไขในการแก้ไขใน Table หลัก'
+                $primaryColumnUpdateDTFilter = 'ชื่อ Column ของวัน-เวลา ที่ต้องการแก้ไขใน Table หลัก [OPTION]'
+                $primaryDataArr['secondaryTableArr'] = 'อาเรย์ของข้อมูลที่ต้องการแก้ไขใน Table ที่สัมพันธ์กับ Table หลัก [OPTION]'
+                $primaryDataArr['secondaryTableArr']['tableName'] = 'ชื่อ Table ที่สัมพันธ์กับ Table หลัก'
+                $primaryDataArr['secondaryTableArr']['columnFilter'] = 'ชื่อ Column ที่ใช้เป็นเงื่อนไขในการแก้ไข'
+                $primaryDataArr['secondaryTableArr']['dataArr'] = 'อาเรย์ของข้อมูลที่ต้องการแก้ไขใน Table ที่สัมพันธ์กับ Table หลัก'
+        */
         public function updateDataMultiTable($primaryTableName = '', $primaryDataArr = [], $primaryColumnFilter = '', $primaryColumnUpdateDTFilter = '') {
             if((!empty($primaryTableName)) && (count($primaryDataArr) != 0) && (!empty($primaryColumnFilter))) {
                 foreach($primaryDataArr as $primaryData) {
@@ -294,7 +342,13 @@
             }
         }
 
-        //--Delete Data in table 
+        /*
+            - Description: 'ลบข้อมูลใน Table'
+            - Parameter: 
+                $tableName = 'ชื่อ Table'
+                $columnFilter = 'ชื่อ Column ที่ใช้เป็นเงื่อนไขในการลบ'
+                $valueFilter = 'ค่าที่ใช้เป็นเงื่อนไขในการลบ'
+        */
         public function deleteData($tableName = '', $columnFilter = '', $valueFilter = '') {
             if((!empty($tableName)) && (!empty($columnFilter)) && (!empty($valueFilter))) {
                 $status = false;
@@ -310,7 +364,14 @@
             }
         }
 
-        //--Delete Data in primary and secondary table
+        /*
+            - Description: 'ลบข้อมูลใน Table หลัก และ Table ที่สัมพันธ์กับ Table หลัก'
+            - Parameter: 
+                $primaryTableName = 'ชื่อ Table หลัก'
+                $columnFilter = 'ชื่อ Column ที่ใช้เป็นเงื่อนไขในการลบ'
+                $valueFilter = 'ค่าที่ใช้เป็นเงื่อนไขในการลบ'
+                $secondaryTableNameArr[] = 'อาเรย์ของชื่อ Table ที่สัมพันธ์กับ Table หลักที่ต้องการลบข้อมูล [OPTION]'
+        */
         public function deleteDataMultiTable($primaryTableName = '', $columnFilter = '', $valueFilter = '', $secondaryTableNameArr = []) {
             if((!empty($primaryTableName)) && (!empty($columnFilter)) && (!empty($valueFilter))) {
                 if((count($secondaryTableNameArr) != 0)) {
@@ -334,7 +395,11 @@
             }
         }
 
-        //--Query for multi statement
+        /*
+            - Description: 'Query คำสั่ง SQL ตั้งแต่ 1 คำสั่งขึ้นไป'
+            - Parameter: 
+                $sqlCmd = 'คำสั่ง SQL ทั้งหมด (คั่นแต่ละคำสั่งด้วยเครื่องหมาย ;)'
+        */
         public function getQueryMultiStatement($sqlCmd = ''){
             if((!empty($sqlCmd))) {
                 $statementOrder = 1;
@@ -360,7 +425,11 @@
             }
         }
 
-        //--Login
+        /*
+            - Description: 'ตรวจสอบผู้ใช้งานที่เข้าสู่ระบบ และรีเทิร์นอาเรย์ของ SESSION ผู้ใช้งาน'
+            - Parameter: 
+                $dataArr[] = 'ข้อมูลของผู้ใช้งาน'
+        */
         public function login($dataArr = []) {
             if((count($dataArr) != 0)) {
                 $sqlCmd = "SELECT * FROM users WHERE email = ? AND password = ?";
@@ -387,7 +456,9 @@
             }
         }
 
-        //--Logout
+        /*
+            - Description: 'ออกจากระบบ และเคลียร์ SESSION ของผู้ใช้งาน'
+        */
         public function logout() {
             if((!isset($_SESSION)))
                 session_start();
@@ -396,6 +467,68 @@
             session_destroy();
 
             return true;
+        }
+
+        /*
+            - Description: 'ส่งอีเมล์ และสามารถแนบไฟล์ได้'
+            - Parameter: 
+                $addressEmailArr[] = 'อาเรย์ของอีเมล์'
+                $addressEmailArr[]['emailName'] = 'ชื่ออีเมล์ผู้รับ'
+                $addressEmailArr[]['emailSubject'] = 'หัวข้ออีเมล์ผู้รับ [OPTION]'
+                $subject = 'หัวข้ออีเมล์'
+                $msgHTML = 'ข้อความหรือ HTML สำหรับส่งอีเมล์'
+                $ccEmailArr[] = 'อาเรย์ของอีเมล์สำหรับ CC [OPTION]'
+                $ccEmailArr[]['emailName'] = 'ชื่ออีเมล์ผู้รับสำหรับ CC [OPTION]'
+                $ccEmailArr[]['emailSubject'] = 'หัวข้ออีเมล์ผู้รับสำหรับ CC [OPTION]'
+                $bccEmailArr[] = 'อาเรย์ของอีเมล์สำหรับ BCC [OPTION]'
+                $bccEmailArr[]['emailName'] = 'ชื่ออีเมล์ผู้รับสำหรับ BCC [OPTION]'
+                $bccEmailArr[]['emailSubject'] = 'หัวข้ออีเมล์ผู้รับสำหรับ BCC [OPTION]'
+                $attacthment['filePath'] = 'ที่อยู่ไฟล์แนบ [OPTION]'
+                $attacthment['fileSubject'] = 'หัวข้อไฟล์แนบ [OPTION]'
+        */
+        public function sendEmail($addressEmailArr = [], $subject = '', $msgHTML = '', $ccEmailArr = [], $bccEmailArr = [], $attacthment = []) {
+            if((count($addressEmailArr) != 0) && (!empty($subject)) && (!empty($msgHTML))) {
+                require("Library/PHPMailer/PHPMailerAutoload.php");
+
+                $mail = new PHPMailer;
+                $mail->CharSet = 'utf-8';
+                $mail->IsSMTP();
+                $mail->SMTPDebug = 0;
+                $mail->Debugoutput = 'html';
+                $mail->Host = 'smtp.live.com'; //--smtp.gmail.com | smtp.live.com
+                $mail->Port = 587; //--587 | 25
+                $mail->SMTPSecure = 'tls'; //--tls | ssl
+                $mail->SMTPAuth = true;
+                $mail->Username = 'itsara.ra.cs@hotmail.com';
+                $mail->Password = 'IT1501033a';
+                $mail->SetFrom('itsara.ra.cs@hotmail.com', 'อิศรา รากจันทึก-Hotmail');
+                $mail->Subject = $subject;
+                $mail->MsgHTML($msgHTML);
+
+                foreach($addressEmailArr as $addressEmail) {
+                    $mail->AddAddress($addressEmail['emailName'], $addressEmail['emailSubject']);
+                }
+
+                if((count($ccEmailArr) != 0)) {
+                    foreach($ccEmailArr as $ccEmail) {
+                        $mail->AddCC($ccEmail['emailName'], $ccEmail['emailSubject']);
+                    }
+                }
+
+                if((count($bccEmailArr) != 0)) {
+                    foreach($bccEmailArr as $bccEmail) {
+                        $mail->AddBCC($bccEmail['emailName'], $bccEmail['emailSubject']);
+                    }
+                }
+                
+                if((!empty($attacthment['filePath'])))
+                    $mail->AddAttachment($attacthment['filePath'], $attacthment['fileSubject']);
+
+                if(!$mail->Send())
+                    echo 'NOT PASS';//return false; //--$mail->ErrorInfo;
+                
+                echo 'PASS';//return true;
+            }
         }
     }
 

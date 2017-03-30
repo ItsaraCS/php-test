@@ -111,6 +111,35 @@
             //$this->checkLogin(['email'=>'a', 'password'=>"1' OR '1=1"]);
             //$this->login(['email'=>'a', 'password'=>'1234']);
             //$this->logout();
+
+            /*$data = json_decode(file_get_contents('php://input'), true);
+            $this->$data['funcName']($data['param']);*/
+            $this->sendEmail(
+                [
+                    ['emailName'=>'itsara.ra.cs@gmail.com', 'emailSubject'=>'อิศรา รากจันทึก-Gmail'],
+                    ['emailName'=>'itsara.ra.cs@hotmail.com', 'emailSubject'=>'อิศรา รากจันทึก-Hotmail']
+                ],
+                'ทดสอบการส่งอีเมล์', 
+                "<h1>My Message</h1><br>
+                <table width='100%' border='1'>
+                <tr>
+                <td><div align='center'><strong>My Message </strong></div></td>
+                <td><div align='center'><font color='red'>My Message</font></div></td>
+                <td><div align='center'><font size='2'>My Message</font></div></td>
+                </tr>
+                <tr>
+                <td><div align='center'>My Message</div></td>
+                <td><div align='center'>My Message</div></td>
+                <td><div align='center'>My Message</div></td>
+                </tr>
+                <tr>
+                <td><div align='center'>My Message</div></td>
+                <td><div align='center'>My Message</div></td>
+                <td><div align='center'>My Message</div></td>
+                </tr>
+                </table>", [], [],
+                ['filePath'=>'Logo.jpg', 'fileSubject'=>'ทดสอบแนบไฟล์ภาพ']
+            );
         }
     }
 
